@@ -149,6 +149,9 @@ def finetune(sess,
     SAMPLE_DIR = 'samples'
 
     checkpoint_path = os.path.join(checkpoint_dir, run_name)
+    counter_graph= []
+    loss_graph = []
+    loss_avg_graph = []
 
     def maketree(path):
         try:
@@ -310,7 +313,7 @@ def finetune(sess,
         while True:
             if steps > 0 and counter == (counter_base + steps):
                 save()
-                return
+                return counter_graph, loss_graph, loss_avg_graph
             if (counter - 1) % save_every == 0 and counter > 1:
                 save()
             if (counter - 1) % sample_every == 0 and counter > 1:
@@ -340,10 +343,15 @@ def finetune(sess,
                         time=time.time() - start_time,
                         loss=v_loss,
                         avg=avg_loss[0] / avg_loss[1]))
+            counter_graph.append(counter)
+            loss_graph.append(v_loss)
+            loss_avg_graph.append(avg_loss[0] / avg_loss[1])
+
 
             counter += 1
     except KeyboardInterrupt:
         print('interrupted')
+        return  counter_graph,loss_graph,loss_avg_graph
         save()
 
 
